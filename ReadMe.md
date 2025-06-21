@@ -1,5 +1,9 @@
 # Agent Todoist
 
+A small Python tool that integrates Todoist and ChatGPT to:
+- Summarize personal project notes using AI
+- Delete tasks after summarizing
+
 ## Initial Setup
 1. Rename `.env.example` to `.env`
 2. Fill in your actual API keys:
@@ -20,6 +24,9 @@ Pass project id as an argument to delete_todoists_project_tasks.py.<br>
 `python delete_todoists_project_tasks.py <project_id>`<br>
 
 ## TODO 
+- Install continue.
+- Figure out if any of the journal apps automate weekly reflections. Can I make a better app than them?
+-- want to pass in entire repo to continue and ask it to improve my read me.
 - Want additional argument specifying different output types such as length or if bullet points should be used.<br>
   maybe even different agent types. Currently agent is a helpful assistant but maybe agent can be a therapist.
 - Script to delete all tasks under a project. useful after I've made my summary
