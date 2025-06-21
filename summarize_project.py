@@ -4,9 +4,14 @@ import argparse
 from datetime import datetime
 import os
 import re
+from dotenv import load_dotenv
+import os
 
-***REMOVED***
-***REMOVED***
+# Load environment variables from .env file
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+TODOIST_API_TOKEN = os.getenv("TODOIST_API_TOKEN")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -55,7 +60,7 @@ def summarize_notes(joined_task_text):
     )
     return response.choices[0].message.content
 
-def write_summary_to_file():
+def write_summary_to_file(project_name, date_range_str, summary):
     # Ensure output directory exists
         output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
@@ -103,8 +108,7 @@ def main():
         date_range_str = f"{oldest_task_date.strftime('%Y-%m-%d')} to {newest_task_date.strftime('%Y-%m-%d')}"
         print("\n" + project_name + " Project Summary " + date_range_str + ":\n", summary)
 
-    
-        
+        write_summary_to_file(project_name, date_range_str, summary)
     else:
         print("No notes found.")
 

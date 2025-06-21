@@ -1,0 +1,22 @@
+# Python __pycache__ and compiled files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# VS Code project settings
+.vscode/
+
+# Config file
+.env
+
+# Output folder for saved summaries
+output/
+
+# Mac system files (if on macOS)
+.DS_Store

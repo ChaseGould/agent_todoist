@@ -1,14 +1,18 @@
 # Agent Todoist
 
-## Instructions
+## Initial Setup
+1. Rename `.env.example` to `.env`
+2. Fill in your actual API keys:
 
-Need to run get_todoist_projects.py to get projects id's.<br>
+## Run Program
+Run get_todoist_projects.py to get projects id's.<br>
 `python get_todoist_project.py`
 
-Need to pass project id as argument to summarize_project.py.<br>
+Pass project id as argument to summarize_project.py.<br>
 `python summarize_project <project_id>`
 
 ## TODO 
+- Add requirements file or is there a way to make my project install all of the necessary python packages?
 - Script to delete all tasks under a project. useful after I've made my summary
 - Need to be able to run these scripts from my phone. Maybe pythonista.
 - Script to push my summary to my phone so it's easy copy into any.do. could be an email or push to todoist.
