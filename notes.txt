@@ -1,0 +1,6 @@
+Need to run this script to get project id's
+the key value is the todoist api
+
+Invoke-RestMethod `
+>>   -Uri "https://api.todoist.com/rest/v2/projects" `
+>>   -Headers @{ ***REMOVED*** }
