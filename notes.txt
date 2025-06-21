@@ -1,6 +1,3 @@
-Need to run this script to get project id's
-the key value is the todoist api
+Need to run get_todoist_projects.py to get projects id's
 
-Invoke-RestMethod `
->>   -Uri "https://api.todoist.com/rest/v2/projects" `
->>   -Headers @{ ***REMOVED*** }
+need to pass project id as argument to summarize_project.py
