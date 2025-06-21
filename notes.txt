@@ -1,3 +1,0 @@
-Need to run get_todoist_projects.py to get projects id's
-
-need to pass project id as argument to summarize_project.py

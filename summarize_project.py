@@ -2,6 +2,8 @@ import requests
 from openai import OpenAI
 import argparse
 from datetime import datetime
+import os
+import re
 
 ***REMOVED***
 ***REMOVED***
@@ -53,6 +55,32 @@ def summarize_notes(joined_task_text):
     )
     return response.choices[0].message.content
 
+def write_summary_to_file():
+    # Ensure output directory exists
+        output_dir = "output"
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Clean up project name to make it filename-safe
+        safe_project_name = re.sub(r'[\\/*?:"<>|]', "_", project_name)
+
+        # Construct base filename
+        base_filename = f"{safe_project_name}_{date_range_str.replace(' ', '_')}.txt"
+        file_path = os.path.join(output_dir, base_filename)
+
+        # Check if file exists, and add a number if it does
+        counter = 1
+        while os.path.exists(file_path):
+            numbered_filename = f"{safe_project_name}_{date_range_str.replace(' ', '_')}_{counter}.txt"
+            file_path = os.path.join(output_dir, numbered_filename)
+            counter += 1
+
+        # Write summary to file
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(f"{project_name} Project Summary ({date_range_str})\n\n")
+            f.write(summary)
+
+        print(f"\n✅ Summary saved to: {file_path}")
+
 def main():
     parser = argparse.ArgumentParser(description="Summarize Todoist project notes with ChatGPT.")
     parser.add_argument("project_id", help="Todoist project ID to summarize")
@@ -74,6 +102,9 @@ def main():
         
         date_range_str = f"{oldest_task_date.strftime('%Y-%m-%d')} to {newest_task_date.strftime('%Y-%m-%d')}"
         print("\n" + project_name + " Project Summary " + date_range_str + ":\n", summary)
+
+    
+        
     else:
         print("No notes found.")
 
