@@ -1,48 +1,81 @@
 import requests
 from openai import OpenAI
-from datetime import datetime, timedelta
+import argparse
+from datetime import datetime
 
 ***REMOVED***
 ***REMOVED***
-PROJECT_ID = "2354738723"
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Get tasks from the project
-def fetch_tasks():
+#Functions should be organized in order they are called in main.
+
+def fetch_tasks(project_id):
     url = "https://api.todoist.com/rest/v2/tasks"
     headers = {"Authorization": f"Bearer {TODOIST_API_TOKEN}"}
-    params = {"project_id": PROJECT_ID}
+    params = {"project_id": project_id}
     response = requests.get(url, headers=headers, params=params)
     if response.status_code != 200:
         print(f"❌ Error: {response.status_code} - {response.text}")
         return []
     return response.json()
 
+def get_date_range(tasks):
+    if not tasks:
+        return None, None
 
-# Send task text to OpenAI for summarization
-def summarize_notes(task_texts):
-    joined_text = "\n".join(f"- {text}" for text in task_texts)
+    # Parse created_at strings into datetime objects
+    dates = [datetime.fromisoformat(task['created_at'].replace('Z', '+00:00')) for task in tasks]
 
-    print(joined_text)
+    oldest = min(dates)
+    newest = max(dates)
+    return oldest, newest
 
+def fetch_project_name(project_id):
+    url = f"https://api.todoist.com/rest/v2/projects/{project_id}"
+    headers = {"Authorization": f"Bearer {TODOIST_API_TOKEN}"}
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"❌ Error fetching project name: {response.status_code} - {response.text}")
+        return "Unknown Project"
+    return response.json().get("name", "Unknown Project")
+
+def combine_text(task_texts):
+    return "\n".join(f"- {text}" for text in task_texts)
+
+def summarize_notes(joined_task_text):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that summarizes personal notes."},
-            {"role": "user", "content": f"Here are my notes from this week:\n{joined_text}\n\n Create one single conscise summary that summarizes the main points from all of these notes. Make an effort to consolidate repetivie information."}
+            {"role": "user", "content": f"Here are my notes from this week:\n{joined_task_text}\n\n Create one single concise summary that summarizes the main points from all of these notes. Make an effort to consolidate repetitive information."}
         ]
     )
     return response.choices[0].message.content
 
-# Run the process
-def run():
-    tasks = fetch_tasks()
+def main():
+    parser = argparse.ArgumentParser(description="Summarize Todoist project notes with ChatGPT.")
+    parser.add_argument("project_id", help="Todoist project ID to summarize")
+    args = parser.parse_args()
+
+    tasks = fetch_tasks(args.project_id)
     notes = [task["content"] for task in tasks]
+
     if notes:
-        summary = summarize_notes(notes)
-        print("\n📝 Weekly Summary:\n", summary)
+        # prepare inputs for summarize_notes
+        oldest_task_date, newest_task_date = get_date_range(tasks)
+        project_name = fetch_project_name(args.project_id)
+        num_tasks = len(tasks)
+        print('number of tasks to combine =' + str(num_tasks) + "\n")
+        joined_task_text = combine_text(notes)
+        print(joined_task_text)
+
+        summary = summarize_notes(joined_task_text)
+        
+        date_range_str = f"{oldest_task_date.strftime('%Y-%m-%d')} to {newest_task_date.strftime('%Y-%m-%d')}"
+        print("\n" + project_name + " Project Summary " + date_range_str + ":\n", summary)
     else:
         print("No notes found.")
 
-run()
+if __name__ == "__main__":
+    main()
