@@ -54,8 +54,10 @@ def summarize_notes(joined_task_text, agent_type):
 
     if agent_type == "therapist":
         system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Use their notes to compose a helpful message with emotional insight and empathy."
-    else:
+    elif agent_type == "assistant":
         system_prompt = "You are a helpful assistant that summarizes personal notes."
+    else:
+        system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Using their notes, write a thoughtful and emotionally insightful first-person reflection as if the person is processing their thoughts themselves. The message should be self-aware, emotionally honest, and gently introspective — like journaling with the guidance of a skilled mental health professional."
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -99,9 +101,9 @@ def main():
     parser.add_argument("project_id", help="Todoist project ID to summarize")
     parser.add_argument(
         "--agent_type",
-        choices=["assistant", "therapist"],
-        default="therapist",  # ✅ default value
-        help="Type of summarization agent: 'assistant' or 'therapist' (default: therapist)"
+        choices=["assistant", "therapist", "first_person"],
+        default="first_person",  # ✅ default value
+        help="Type of summarization agent: 'assistant' 'therapist' or 'first_person' (default: first_person)"
     )
     args = parser.parse_args()
 
@@ -113,7 +115,8 @@ def main():
         oldest_task_date, newest_task_date = get_date_range(tasks)
         project_name = fetch_project_name(args.project_id)
         num_tasks = len(tasks)
-        print('number of tasks to combine =' + str(num_tasks) + "\n")
+        print('number of tasks to combine: ' + str(num_tasks) + "\n")
+        print('agent type: ' + str(args.agent_type))
         joined_task_text = combine_text(notes)
         print(joined_task_text)
 
