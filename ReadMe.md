@@ -17,7 +17,8 @@ Run get_todoist_projects.py to get projects id's.<br>
 ### Summarize a project
 Pass project id as an argument to summarize_project.py.<br>
 `python summarize_project.py <project_id>`<br>
-Project summary is saved to the output folder.
+Project summary is saved to the output folder.<br>
+Run with -h to see additonal argument options.
 
 ### Delete all tasks within a project
 Pass project id as an argument to delete_todoists_project_tasks.py.<br>
@@ -27,9 +28,6 @@ Pass project id as an argument to delete_todoists_project_tasks.py.<br>
 - Install continue.
 - Figure out if any of the journal apps automate weekly reflections. Can I make a better app than them?
 -- want to pass in entire repo to continue and ask it to improve my read me.
-- Want additional argument specifying different output types such as length or if bullet points should be used.<br>
-  maybe even different agent types. Currently agent is a helpful assistant but maybe agent can be a therapist.
-- Script to delete all tasks under a project. useful after I've made my summary
 - Need to be able to run these scripts from my phone. Maybe pythonista.
 - Script to push my summary to my phone so it's easy copy into any.do. could be an email or push to todoist.
 - Add requirements file or is there a way to make my project install all of the necessary python packages?

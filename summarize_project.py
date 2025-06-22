@@ -50,45 +50,59 @@ def fetch_project_name(project_id):
 def combine_text(task_texts):
     return "\n".join(f"- {text}" for text in task_texts)
 
-def summarize_notes(joined_task_text):
+def summarize_notes(joined_task_text, agent_type):
+
+    if agent_type == "therapist":
+        system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Use their notes to compose a helpful message with emotional insight and empathy."
+    else:
+        system_prompt = "You are a helpful assistant that summarizes personal notes."
+
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that summarizes personal notes."},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Here are my notes from this week:\n{joined_task_text}\n\n Create one single concise summary that summarizes the main points from all of these notes. Make an effort to consolidate repetitive information."}
         ]
     )
     return response.choices[0].message.content
 
-def write_summary_to_file(project_name, date_range_str, summary):
+def write_summary_to_file(project_name, agent_type, date_range_str, summary):
     # Ensure output directory exists
-        output_dir = "output"
-        os.makedirs(output_dir, exist_ok=True)
+    output_dir = "output"
+    os.makedirs(output_dir, exist_ok=True)
 
-        # Clean up project name to make it filename-safe
-        safe_project_name = re.sub(r'[\\/*?:"<>|]', "_", project_name)
+    # Clean up project name to make it filename-safe
+    safe_project_name = re.sub(r'[\\/*?:"<>|]', "_", project_name)
 
-        # Construct base filename
-        base_filename = f"{safe_project_name}_{date_range_str.replace(' ', '_')}.txt"
-        file_path = os.path.join(output_dir, base_filename)
+    agent_type_str = str(agent_type)
 
-        # Check if file exists, and add a number if it does
-        counter = 1
-        while os.path.exists(file_path):
-            numbered_filename = f"{safe_project_name}_{date_range_str.replace(' ', '_')}_{counter}.txt"
-            file_path = os.path.join(output_dir, numbered_filename)
-            counter += 1
+    # Construct base filename
+    base_filename = f"{safe_project_name}_{agent_type_str}_{date_range_str.replace(' ', '_')}.txt"
+    file_path = os.path.join(output_dir, base_filename)
 
-        # Write summary to file
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(f"{project_name} Project Summary ({date_range_str})\n\n")
-            f.write(summary)
+    # Check if file exists, and add a number if it does
+    counter = 1
+    while os.path.exists(file_path):
+        numbered_filename = f"{safe_project_name}_{date_range_str.replace(' ', '_')}_{counter}.txt"
+        file_path = os.path.join(output_dir, numbered_filename)
+        counter += 1
 
-        print(f"\n✅ Summary saved to: {file_path}")
+    # Write summary to file
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(f"{project_name} Project Summary ({date_range_str})\n\n")
+        f.write(summary)
+
+    print(f"\n✅ Summary saved to: {file_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Summarize Todoist project notes with ChatGPT.")
     parser.add_argument("project_id", help="Todoist project ID to summarize")
+    parser.add_argument(
+        "--agent_type",
+        choices=["assistant", "therapist"],
+        default="therapist",  # ✅ default value
+        help="Type of summarization agent: 'assistant' or 'therapist' (default: therapist)"
+    )
     args = parser.parse_args()
 
     tasks = fetch_tasks(args.project_id)
@@ -103,12 +117,12 @@ def main():
         joined_task_text = combine_text(notes)
         print(joined_task_text)
 
-        summary = summarize_notes(joined_task_text)
+        summary = summarize_notes(joined_task_text, args.agent_type)
         
         date_range_str = f"{oldest_task_date.strftime('%Y-%m-%d')} to {newest_task_date.strftime('%Y-%m-%d')}"
         print("\n" + project_name + " Project Summary " + date_range_str + ":\n", summary)
 
-        write_summary_to_file(project_name, date_range_str, summary)
+        write_summary_to_file(project_name, args.agent_type, date_range_str, summary)
     else:
         print("No notes found.")
 
