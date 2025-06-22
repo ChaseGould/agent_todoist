@@ -50,20 +50,26 @@ def fetch_project_name(project_id):
 def combine_text(task_texts):
     return "\n".join(f"- {text}" for text in task_texts)
 
-def summarize_notes(joined_task_text, agent_type):
+def summarize_notes(joined_task_text, agent_type, length):
 
     if agent_type == "therapist":
         system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Use their notes to compose a helpful message with emotional insight and empathy."
     elif agent_type == "assistant":
         system_prompt = "You are a helpful assistant that summarizes personal notes."
     else:
-        system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Using their notes, write a thoughtful and emotionally insightful first-person reflection as if the person is processing their thoughts themselves. The message should be self-aware, emotionally honest, and gently introspective — like journaling with the guidance of a skilled mental health professional."
+        system_prompt = "You are a compassionate therapist helping someone reflect on their recent thoughts and experiences. Using their notes, write a motivational and emotionally insightful first-person reflection as if the person is processing their thoughts themselves. The message should be self-aware, emotionally honest, motivational and gently introspective — like journaling with the guidance of a skilled mental health professional."
+
+    if length == "long":
+        detail_instruction = "Make the summary detailed and expansive, capturing all meaningful nuances."
+    else:
+        detail_instruction = "Make the summary clear and concise while preserving important details."
+
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Here are my notes from this week:\n{joined_task_text}\n\n Create one single concise summary that summarizes the main points from all of these notes. Make an effort to consolidate repetitive information."}
+            {"role": "user", "content": f"Here are my notes:\n{joined_task_text}\n\n{detail_instruction} Create one single concise summary that summarizes the main points from all of these notes. Make an effort to consolidate repetitive information."}
         ]
     )
     return response.choices[0].message.content
@@ -105,6 +111,13 @@ def main():
         default="first_person",  # ✅ default value
         help="Type of summarization agent: 'assistant' 'therapist' or 'first_person' (default: first_person)"
     )
+    parser.add_argument(
+        "--length",
+        choices=["medium", "long"],
+        default="medium",
+        help="Length of the summary: medium', or 'long' (default: medium)"
+    )
+
     args = parser.parse_args()
 
     tasks = fetch_tasks(args.project_id)
@@ -120,7 +133,7 @@ def main():
         joined_task_text = combine_text(notes)
         print(joined_task_text)
 
-        summary = summarize_notes(joined_task_text, args.agent_type)
+        summary = summarize_notes(joined_task_text, args.agent_type, args.length)
         
         date_range_str = f"{oldest_task_date.strftime('%Y-%m-%d')} to {newest_task_date.strftime('%Y-%m-%d')}"
         print("\n" + project_name + " Project Summary " + date_range_str + ":\n", summary)
