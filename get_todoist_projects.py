@@ -1,11 +1,13 @@
+import os
+
 import requests
+from dotenv import load_dotenv
 
-# Paste your token here or use an environment variable
-***REMOVED***
+# Load API key from .env
+load_dotenv()
+TODOIST_API_TOKEN = os.getenv("TODOIST_API_TOKEN")
 
-headers = {
-    "Authorization": f"Bearer {TODOIST_API_TOKEN}"
-}
+headers = {"Authorization": f"Bearer {TODOIST_API_TOKEN}"}
 
 response = requests.get("https://api.todoist.com/rest/v2/projects", headers=headers)
 
