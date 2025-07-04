@@ -1,11 +1,13 @@
-import requests
 import argparse
 import os
+
+import requests
 from dotenv import load_dotenv
 
 # Load API key from .env
 load_dotenv()
 TODOIST_API_TOKEN = os.getenv("TODOIST_API_TOKEN")
+
 
 def fetch_tasks(project_id):
     url = "https://api.todoist.com/rest/v2/tasks"
@@ -17,6 +19,7 @@ def fetch_tasks(project_id):
         return []
     return response.json()
 
+
 def delete_task(task_id):
     url = f"https://api.todoist.com/rest/v2/tasks/{task_id}"
     headers = {"Authorization": f"Bearer {TODOIST_API_TOKEN}"}
@@ -24,10 +27,15 @@ def delete_task(task_id):
     if response.status_code == 204:
         print(f"✅ Deleted task ID {task_id}")
     else:
-        print(f"❌ Failed to delete task {task_id}: {response.status_code} - {response.text}")
+        print(
+            f"❌ Failed to delete task {task_id}: {response.status_code} - {response.text}"
+        )
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Delete all tasks in a Todoist project.")
+    parser = argparse.ArgumentParser(
+        description="Delete all tasks in a Todoist project."
+    )
     parser.add_argument("project_id", help="Todoist project ID")
     args = parser.parse_args()
 
@@ -40,6 +48,7 @@ def main():
 
     for task in tasks:
         delete_task(task["id"])
+
 
 if __name__ == "__main__":
     main()
