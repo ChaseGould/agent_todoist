@@ -145,7 +145,14 @@ def main():
     args = parser.parse_args()
 
     tasks = fetch_tasks(args.project_id)
-    notes = [task["content"] for task in tasks]
+    notes = []
+    for task in tasks:
+        content = task.get("content", "")
+        description = task.get("description", "")
+        if description:
+            notes.append(f"{content}\n  (Description: {description})")
+        else:
+            notes.append(content)
 
     if notes:
         # prepare inputs for summarize_notes
