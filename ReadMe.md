@@ -20,7 +20,6 @@ This project provides a suite of Python scripts to manage and interact with your
     ```bash
     pip install -r requirements.txt
     ```
-    *(Note: A `requirements.txt` file is not provided, but you will need to install `requests`, `python-dotenv`, and `openai`.)*
 
 3.  **Set up your environment variables:**
     - Create a `.env` file in the root directory of the project by copying the `.env.example` file:
